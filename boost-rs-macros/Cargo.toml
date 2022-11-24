@@ -1,0 +1,32 @@
+[package]
+name = "boost-rs-macros"
+version = "0.0.1"
+authors = ["JasonkayZK <jasonkayzk@gmail.com>"]
+license = "MIT"
+edition = "2018"
+readme = "README.md"
+repository = "https://github.com/JasonkayZK/boost-rs"
+homepage = "https://github.com/JasonkayZK/boost-rs"
+description = """
+Boost-rs's proc macros
+"""
+keywords = ["utilities", "toolkit", "macros"]
+categories = ["accessibility", "development-tools"]
+include = ["src/", "LICENSE", "README.md"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+proc-macro = true
+
+[features]
+
+[dependencies]
+proc-macro2 = "1.0.7"
+quote = "1"
+syn = { version = "1.0.56", features = ["full"] }
+
+[dev-dependencies]
+boost-rs = { version = "0.0.1", path = "../boost-rs"  }
+
+[package.metadata.docs.rs]
+all-features = true

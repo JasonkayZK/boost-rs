@@ -1,5 +1,5 @@
-use rand::{Rng};
 use rand::distributions::Alphanumeric;
+use rand::Rng;
 
 /// Generate random String with given charset of len length
 ///

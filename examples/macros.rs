@@ -1,6 +1,6 @@
+use boost_rs_macros::{elapsed, HelloMacro};
 use std::thread;
 use std::time::Duration;
-use boost_rs_macros::{elapsed, HelloMacro};
 
 pub trait HelloMacro {
     fn hello_macro();

@@ -1,7 +1,7 @@
 use proc_macro::TokenStream;
-use syn::ItemFn;
 use quote::quote;
 use syn::parse_macro_input;
+use syn::ItemFn;
 
 #[cfg(not(test))] // Work around for rust-lang/rust#62127
 pub(crate) fn elapsed(_attr: TokenStream, func: TokenStream) -> TokenStream {

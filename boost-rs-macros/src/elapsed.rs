@@ -3,7 +3,6 @@ use quote::quote;
 use syn::parse_macro_input;
 use syn::ItemFn;
 
-#[cfg(not(test))] // Work around for rust-lang/rust#62127
 pub(crate) fn elapsed(_attr: TokenStream, func: TokenStream) -> TokenStream {
     let func = parse_macro_input!(func as ItemFn);
     let func_vis = &func.vis; // like pub

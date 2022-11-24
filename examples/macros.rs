@@ -1,6 +1,6 @@
 use std::thread;
 use std::time::Duration;
-use boost_rs_macros::{boost_bench, HelloMacro};
+use boost_rs_macros::{elapsed, HelloMacro};
 
 pub trait HelloMacro {
     fn hello_macro();
@@ -12,7 +12,7 @@ struct Sunfei;
 #[derive(HelloMacro)]
 struct Sunface;
 
-#[boost_bench]
+#[elapsed]
 fn deco(t: u64) {
     let secs = Duration::from_secs(t);
     thread::sleep(secs);

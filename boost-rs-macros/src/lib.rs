@@ -13,6 +13,6 @@ pub fn some_name(input: TokenStream) -> TokenStream {
 }
 
 #[proc_macro_attribute]
-pub fn boost_bench(args: TokenStream, func: TokenStream) -> TokenStream {
-    bench::bench(args, func)
+pub fn elapsed(args: TokenStream, func: TokenStream) -> TokenStream {
+    bench::elapsed(args, func)
 }

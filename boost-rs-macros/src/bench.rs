@@ -4,7 +4,7 @@ use quote::quote;
 use syn::parse_macro_input;
 
 #[cfg(not(test))] // Work around for rust-lang/rust#62127
-pub(crate) fn bench(_attr: TokenStream, func: TokenStream) -> TokenStream {
+pub(crate) fn elapsed(_attr: TokenStream, func: TokenStream) -> TokenStream {
     let func = parse_macro_input!(func as ItemFn);
     let func_vis = &func.vis; // like pub
     let func_block = &func.block; // { some statement or expression here }

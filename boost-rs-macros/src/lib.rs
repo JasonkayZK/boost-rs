@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 
-mod bench;
+mod elapsed;
 mod hello;
 
 #[proc_macro_derive(HelloMacro)]
@@ -14,5 +14,5 @@ pub fn hello_macro(input: TokenStream) -> TokenStream {
 
 #[proc_macro_attribute]
 pub fn elapsed(args: TokenStream, func: TokenStream) -> TokenStream {
-    bench::elapsed(args, func)
+    elapsed::elapsed(args, func)
 }

@@ -7,10 +7,10 @@ pub trait HelloMacro {
 }
 
 #[derive(HelloMacro)]
-struct Sunfei;
+struct Foo;
 
 #[derive(HelloMacro)]
-struct Sunface;
+struct Bar;
 
 #[elapsed]
 fn deco(t: u64) {
@@ -19,8 +19,8 @@ fn deco(t: u64) {
 }
 
 fn main() {
-    Sunfei::hello_macro();
-    Sunface::hello_macro();
+    Foo::hello_macro();
+    Bar::hello_macro();
 
     deco(4);
     deco(2);

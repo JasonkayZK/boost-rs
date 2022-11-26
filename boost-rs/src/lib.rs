@@ -1,4 +1,4 @@
-pub mod rand;
 pub mod bit;
-pub mod types;
 pub mod macros;
+pub mod rand;
+pub mod types;

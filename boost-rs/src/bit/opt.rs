@@ -5,7 +5,9 @@ use std::ops;
 use crate::types::integer::{Integer, SignedInteger};
 
 pub fn swap<T>(mut x: T, mut y: T) -> (T, T)
-    where T: ops::BitXor<Output=T> + ops::BitXorAssign + Copy {
+where
+    T: ops::BitXor<Output = T> + ops::BitXorAssign + Copy,
+{
     x ^= y;
     y ^= x;
     x ^= y;
@@ -13,22 +15,30 @@ pub fn swap<T>(mut x: T, mut y: T) -> (T, T)
 }
 
 pub fn add_one<T>(x: T) -> T
-    where T: SignedInteger {
+where
+    T: SignedInteger,
+{
     -(!x)
 }
 
 pub fn sub_one<T>(x: T) -> T
-    where T: SignedInteger {
+where
+    T: SignedInteger,
+{
     !(-x)
 }
 
 pub fn neg<T>(x: T) -> T
-    where T: SignedInteger + ops::Add<i32, Output=T> {
+where
+    T: SignedInteger + ops::Add<i32, Output = T>,
+{
     !x + 1
 }
 
 pub fn hamming_weight<T>(_x: T) -> T
-    where T: Integer {
+where
+    T: Integer,
+{
     _x
 }
 

@@ -1,6 +1,6 @@
 [package]
 name = "boost-rs"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["JasonkayZK <jasonkayzk@gmail.com>"]
 license = "MIT"
 edition = "2018"
@@ -16,4 +16,17 @@ include = ["src/", "LICENSE", "README.md"]
 
 [dependencies]
 rand = "0.8.5"
+log = "0.4"
 boost-rs-macros = { path = "../boost-rs-macros" }
+
+[features]
+
+default = []
+
+full = [
+    "logger",
+    "rand"
+]
+
+logger = []
+rand = []

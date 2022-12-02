@@ -16,8 +16,8 @@ include = ["src/", "LICENSE", "README.md"]
 
 [dependencies]
 rand = "0.8.5"
-log = "0.4"
-boost-rs-macros = { path = "../boost-rs-macros" }
+log = { version = "0.4", optional = true }
+boost-rs-macros = { version = "0.0.1", path = "../boost-rs-macros" }
 
 [features]
 

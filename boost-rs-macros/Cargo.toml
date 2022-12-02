@@ -26,7 +26,7 @@ quote = "1"
 syn = { version = "1.0.56", features = ["full"] }
 
 [dev-dependencies]
-boost-rs = { version = "0.0.1", path = "../boost-rs"  }
+boost-rs = { path = "../boost-rs"  }
 
 [package.metadata.docs.rs]
 all-features = true

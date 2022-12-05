@@ -1,6 +1,7 @@
 //! Log utils
 use std::env;
 
+pub use log;
 use log::{Level, LevelFilter, Log, Metadata, Record};
 
 struct Logger;
@@ -34,12 +35,12 @@ impl From<&str> for LogLevel {
 /// # Usage
 ///
 /// ```
-/// use log::info;
-/// fn main() {
+/// # fn main() {
 ///   // init logger
+///   use log::info;
 ///   boost_rs::logger::init(None);
 ///   info!("test: {}", "info");
-/// }
+/// # }
 /// ```
 pub fn init(level: Option<LogLevel>) {
     static LOGGER: Logger = Logger;

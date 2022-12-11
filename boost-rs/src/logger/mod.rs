@@ -1,7 +1,30 @@
-//! Log utils
+//! Logger utils for `log` crate.
+//!
+//! Init a global logger for `log` crate.
+//!
+//! # Usage
+//!
+//! ```
+//! # fn main() {
+//! use log::{debug, error, info, trace, warn};
+//! use boost_rs::logger;
+//!
+//! // Init the global logger
+//! logger::init(Some(logger::LogLevel::Trace));
+//!
+//! // Print log
+//! trace!("trace");
+//! debug!("debug");
+//! info!("info");
+//! warn!("warn");
+//! error!("error");
+//! # }
+//! ```
+//!
+pub extern crate log;
+
 use std::env;
 
-pub use log;
 use log::{Level, LevelFilter, Log, Metadata, Record};
 
 struct Logger;

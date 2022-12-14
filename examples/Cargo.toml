@@ -17,3 +17,7 @@ path = "macros.rs"
 [[example]]
 name = "collection-demo"
 path = "collections.rs"
+
+[[example]]
+name = "skiplist-demo"
+path = "skiplist.rs"

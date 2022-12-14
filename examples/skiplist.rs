@@ -9,11 +9,12 @@ fn contains_test(l: &mut SkipList<i32>, i: &i32) {
 }
 
 fn main() {
-    let mut l = SkipList::ord_with_options(Options{
+    let mut l = SkipList::ord_with_options(Options {
         cmp: None,
         level_bound: Some(4),
         level_generator: None,
-    }).unwrap();
+    })
+    .unwrap();
 
     for x in 0..10 {
         add_test(&mut l, x);

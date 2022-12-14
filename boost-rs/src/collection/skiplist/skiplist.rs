@@ -55,9 +55,7 @@ impl<T> Options<T> {
             Some(g) => Ok(g),
             None => {
                 let g = match self.level_bound {
-                    Some(level_bound) => {
-                        DefaultLevelGenerator::new(level_bound, 1.0 / 2.0)?
-                    }
+                    Some(level_bound) => DefaultLevelGenerator::new(level_bound, 1.0 / 2.0)?,
                     None => DefaultLevelGenerator::default(),
                 };
                 Ok(Box::new(g))
@@ -68,7 +66,9 @@ impl<T> Options<T> {
     pub fn take_comparator(&mut self) -> Result<Box<dyn Fn(&T, &T) -> Ordering>, CollectionError> {
         match self.cmp.take() {
             Some(cmp) => Ok(Box::new(cmp)),
-            None => Err(CollectionError::InvalidParameter("comparator must be provided".to_string())),
+            None => Err(CollectionError::InvalidParameter(
+                "comparator must be provided".to_string(),
+            )),
         }
     }
 }
@@ -78,7 +78,7 @@ impl<T: Ord> SkipList<T> {
         let g = DefaultLevelGenerator::default();
         Self {
             length: 0,
-            cmp: Box::new(|x, y| { x.cmp(y) }),
+            cmp: Box::new(|x, y| x.cmp(y)),
             head: NonNull::new(Box::into_raw(Box::new(SkipNode::head(g.level_bound())))).unwrap(),
             level_generator: Box::new(g),
             _marker: PhantomData,
@@ -119,8 +119,10 @@ impl<T> SkipList<T> {
                         break;
                     }
                 }
-                if cur.next[i].is_some() &&
-                    (self.cmp)(&cur.next[i].unwrap().as_ref().val.as_ref().unwrap(), v) == Ordering::Equal {
+                if cur.next[i].is_some()
+                    && (self.cmp)(&cur.next[i].unwrap().as_ref().val.as_ref().unwrap(), v)
+                        == Ordering::Equal
+                {
                     return true;
                 }
             }
@@ -142,7 +144,11 @@ impl<T> SkipList<T> {
             for i in (0..=cur.level).rev() {
                 while cur.next[i].is_some() {
                     let next_node = cur.next[i].unwrap().as_mut();
-                    if (self.cmp)(&next_node.val.as_ref().unwrap(), &new_node.as_ref().unwrap().as_ref().val.as_ref().unwrap()) == Ordering::Less {
+                    if (self.cmp)(
+                        &next_node.val.as_ref().unwrap(),
+                        &new_node.as_ref().unwrap().as_ref().val.as_ref().unwrap(),
+                    ) == Ordering::Less
+                    {
                         cur = next_node;
                     } else {
                         break;
@@ -191,21 +197,32 @@ impl<T> SkipList<T> {
             }
 
             let mut ret_val_ref = None;
-            if cur.next[0].is_some() && (self.cmp)(cur.next[0].unwrap().as_ref().val.as_ref().unwrap(), val) == Ordering::Equal {
+            if cur.next[0].is_some()
+                && (self.cmp)(cur.next[0].unwrap().as_ref().val.as_ref().unwrap(), val)
+                    == Ordering::Equal
+            {
                 ret_val_ref = cur.next[0];
                 for i in (0..=max_level).rev() {
-                    if update[i].is_some() &&
-                        (*update[i].unwrap()).next[i].is_some() &&
-                        (self.cmp)((*update[i].unwrap()).next[i].unwrap().as_mut().val.as_ref().unwrap(), val) == Ordering::Equal {
-                        (*update[i].unwrap()).next[i] = (*update[i].unwrap()).next[i].unwrap().as_mut().next[i];
+                    if update[i].is_some()
+                        && (*update[i].unwrap()).next[i].is_some()
+                        && (self.cmp)(
+                            (*update[i].unwrap()).next[i]
+                                .unwrap()
+                                .as_mut()
+                                .val
+                                .as_ref()
+                                .unwrap(),
+                            val,
+                        ) == Ordering::Equal
+                    {
+                        (*update[i].unwrap()).next[i] =
+                            (*update[i].unwrap()).next[i].unwrap().as_mut().next[i];
                     }
                 }
             }
             ret_val = match ret_val_ref {
-                None => {
-                    None
-                }
-                Some(ret) => { Box::from_raw(ret.as_ptr()).into_val() }
+                None => None,
+                Some(ret) => Box::from_raw(ret.as_ptr()).into_val(),
             }
         }
 
@@ -284,7 +301,7 @@ impl<'a, T> Iterator for Iter<'a, T> {
                         node.val.as_ref()
                     }
                 }
-                None => None
+                None => None,
             }
         }
     }
@@ -294,7 +311,6 @@ impl<'a, T> Iterator for Iter<'a, T> {
         (self.len, Some(self.len))
     }
 }
-
 
 pub struct IterMut<'a, T: 'a> {
     head: Option<NonNull<SkipNode<T>>>,
@@ -331,8 +347,8 @@ impl<T> IntoIterator for SkipList<T> {
 
 #[cfg(test)]
 mod tests {
-    use crate::collection::skiplist::{Options, SkipList};
     use crate::collection::skiplist::level_generator::DefaultLevelGenerator;
+    use crate::collection::skiplist::{Options, SkipList};
 
     #[test]
     fn compile() {
@@ -351,7 +367,8 @@ mod tests {
             cmp: Some(Box::new(|x: &i32, y: &i32| y.cmp(x))),
             level_bound: None,
             level_generator: None,
-        }).unwrap();
+        })
+        .unwrap();
         assert_eq!(sl.length, 0);
     }
 
@@ -361,7 +378,8 @@ mod tests {
             cmp: None,
             level_bound: Some(1024),
             level_generator: None,
-        }).unwrap();
+        })
+        .unwrap();
         assert_eq!(sl.length, 0);
     }
 
@@ -372,7 +390,8 @@ mod tests {
             cmp: None,
             level_bound: None,
             level_generator: Some(Box::new(g)),
-        }).unwrap();
+        })
+        .unwrap();
         assert_eq!(sl.length, 0);
     }
 
@@ -387,7 +406,8 @@ mod tests {
             cmp: Some(Box::new(|x: &Foo, y: &Foo| y.id.cmp(&x.id))),
             level_bound: None,
             level_generator: None,
-        }).unwrap();
+        })
+        .unwrap();
         assert_eq!(sl.length, 0);
     }
 
@@ -397,7 +417,8 @@ mod tests {
             cmp: None,
             level_bound: Some(16),
             level_generator: None,
-        }).unwrap();
+        })
+        .unwrap();
 
         let test_len = 10000;
         for i in 0..test_len {

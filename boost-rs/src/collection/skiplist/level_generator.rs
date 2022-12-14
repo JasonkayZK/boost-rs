@@ -9,8 +9,8 @@
 //! It is very unlikely that this will need to be changed as the default should
 //! suffice, but if need be custom level generators can be implemented.
 
-use rand::{Rng, SeedableRng, thread_rng};
 use rand::rngs::SmallRng;
+use rand::{thread_rng, Rng, SeedableRng};
 
 use crate::collection::error::CollectionError;
 
@@ -53,10 +53,14 @@ impl DefaultLevelGenerator {
     /// `level_bound` must be at greater or equal to 1.
     pub fn new(level_bound: usize, p: f64) -> Result<Self, CollectionError> {
         if level_bound == 0 {
-            return Err(CollectionError::InvalidParameter("total must be non-zero.".to_string()));
+            return Err(CollectionError::InvalidParameter(
+                "total must be non-zero.".to_string(),
+            ));
         }
         if (p - 0.0).abs() < 1e-3 || (p - 1.0).abs() < 1e-3 {
-            return Err(CollectionError::InvalidParameter("p must be in (0,1).".to_string()));
+            return Err(CollectionError::InvalidParameter(
+                "p must be in (0,1).".to_string(),
+            ));
         }
         Ok(DefaultLevelGenerator {
             level_bound,

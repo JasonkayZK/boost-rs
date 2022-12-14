@@ -1,5 +1,6 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 
+mod btreeset;
 mod linkedlist;
 mod ordskiplist;
 mod vec;
@@ -17,6 +18,9 @@ criterion_group!(
     crate::vec::insert,
     crate::vec::rand_access,
     crate::vec::iter,
+    crate::btreeset::insert,
+    crate::btreeset::rand_access,
+    crate::btreeset::iter,
 );
 
 criterion_main!(benches);

@@ -2,7 +2,7 @@ use boost_rs::collection::skiplist::OrdSkipList;
 use criterion::{black_box, AxisScale, BenchmarkId, Criterion, PlotConfiguration};
 use rand::prelude::*;
 
-const STEPS: [usize; 6] = [1, 10, 100, 1000, 10_000, 100_000];
+const STEPS: [usize; 4] = [100, 1000, 10_000, 100_000];
 
 pub fn insert(c: &mut Criterion) {
     let mut group = c.benchmark_group("OrdSkipList Insert");
@@ -34,7 +34,7 @@ pub fn rand_access(c: &mut Criterion) {
 
             b.iter(|| {
                 for &i in &indices {
-                    black_box(sl.iter().nth(i).expect("No nth element"));
+                    black_box(sl.contains(&i));
                 }
             })
         });

@@ -39,7 +39,7 @@ pub(crate) struct SkipNode<T> {
     // Vector of links to the next node at the respective level. This vector
     // *must* be of length `self.level + 1`.  links[0] stores a pointer to the
     // next node, which will have to be dropped.
-    pub(crate) links: Vec<Link<T>>,
+    pub(crate) next: Vec<Link<T>>,
 }
 
 impl<T> SkipNode<T> {
@@ -48,7 +48,7 @@ impl<T> SkipNode<T> {
         SkipNode {
             val: None,
             level: level_bound - 1, // The head node has `level_bound-1` levels(highest level)
-            links: iter::repeat(None).take(level_bound).collect(),
+            next: iter::repeat(None).take(level_bound).collect(),
         }
     }
 
@@ -58,7 +58,7 @@ impl<T> SkipNode<T> {
         SkipNode {
             val: Some(item),
             level,
-            links: iter::repeat(None).take(level + 1).collect(),
+            next: iter::repeat(None).take(level + 1).collect(),
         }
     }
 

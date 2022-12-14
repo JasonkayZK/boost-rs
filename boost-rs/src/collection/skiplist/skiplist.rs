@@ -111,16 +111,16 @@ impl<T> SkipList<T> {
             let mut cur = self.head.as_ref();
 
             for i in (0..=cur.level).rev() {
-                while cur.links[i].is_some() {
-                    let next_node = cur.links[i].unwrap().as_ref();
+                while cur.next[i].is_some() {
+                    let next_node = cur.next[i].unwrap().as_ref();
                     if (self.cmp)(&next_node.val.as_ref().unwrap(), v) == Ordering::Less {
                         cur = next_node;
                     } else {
                         break;
                     }
                 }
-                if cur.links[i].is_some() &&
-                    (self.cmp)(&cur.links[i].unwrap().as_ref().val.as_ref().unwrap(), v) == Ordering::Equal {
+                if cur.next[i].is_some() &&
+                    (self.cmp)(&cur.next[i].unwrap().as_ref().val.as_ref().unwrap(), v) == Ordering::Equal {
                     return true;
                 }
             }
@@ -140,8 +140,8 @@ impl<T> SkipList<T> {
         unsafe {
             let mut cur = self.head.as_mut();
             for i in (0..=cur.level).rev() {
-                while cur.links[i].is_some() {
-                    let next_node = cur.links[i].unwrap().as_mut();
+                while cur.next[i].is_some() {
+                    let next_node = cur.next[i].unwrap().as_mut();
                     if (self.cmp)(&next_node.val.as_ref().unwrap(), &new_node.as_ref().unwrap().as_ref().val.as_ref().unwrap()) == Ordering::Less {
                         cur = next_node;
                     } else {
@@ -150,13 +150,13 @@ impl<T> SkipList<T> {
                 }
 
                 if level > i {
-                    match cur.links[i] {
+                    match cur.next[i] {
                         Some(mut next) => {
-                            cur.links[i] = new_node;
-                            new_node.as_mut().unwrap().as_mut().links[i] = Some(next);
+                            cur.next[i] = new_node;
+                            new_node.as_mut().unwrap().as_mut().next[i] = Some(next);
                         }
                         None => {
-                            cur.links[i] = new_node;
+                            cur.next[i] = new_node;
                         }
                     }
                 }
@@ -179,8 +179,8 @@ impl<T> SkipList<T> {
         let ret_val;
         unsafe {
             for i in (0..=max_level).rev() {
-                while cur.links[i].is_some() {
-                    let next_node = cur.links[i].unwrap().as_mut();
+                while cur.next[i].is_some() {
+                    let next_node = cur.next[i].unwrap().as_mut();
                     if (self.cmp)(&next_node.val.as_ref().unwrap(), &val) == Ordering::Less {
                         cur = next_node;
                     } else {
@@ -191,12 +191,12 @@ impl<T> SkipList<T> {
             }
 
             let mut ret_val_ref = None;
-            if cur.links[0].is_some() && (self.cmp)(cur.links[0].unwrap().as_mut().val.as_mut().unwrap(), val) == Ordering::Equal {
-                ret_val_ref = cur.links[0];
+            if cur.next[0].is_some() && (self.cmp)(cur.next[0].unwrap().as_mut().val.as_mut().unwrap(), val) == Ordering::Equal {
+                ret_val_ref = cur.next[0];
                 for i in (0..=max_level).rev() {
-                    if update[i].is_some() && (*update[i].unwrap()).links[i].is_some() && (self.cmp)((*update[i].unwrap()).links[i].unwrap().as_mut().val.as_ref().unwrap(), val) == Ordering::Equal {
-                        let mut next = (*update[i].unwrap()).links[i];
-                        next = next.unwrap().as_mut().links[i];
+                    if update[i].is_some() && (*update[i].unwrap()).next[i].is_some() && (self.cmp)((*update[i].unwrap()).next[i].unwrap().as_mut().val.as_ref().unwrap(), val) == Ordering::Equal {
+                        let mut next = (*update[i].unwrap()).next[i];
+                        next = next.unwrap().as_mut().next[i];
                     }
                 }
             }
@@ -235,7 +235,7 @@ impl<T> SkipList<T> {
     }
 
     pub fn iter(&self) -> Iter<T> {
-        let node = unsafe { self.head.as_ref().links[0] };
+        let node = unsafe { self.head.as_ref().next[0] };
 
         Iter {
             head: node,
@@ -279,7 +279,7 @@ impl<'a, T> Iterator for Iter<'a, T> {
 
                     unsafe {
                         let node = &*node.as_ptr();
-                        self.head = node.links[0];
+                        self.head = node.next[0];
                         node.val.as_ref()
                     }
                 }

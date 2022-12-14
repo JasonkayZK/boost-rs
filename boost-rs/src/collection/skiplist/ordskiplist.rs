@@ -12,6 +12,9 @@ use crate::collection::error::CollectionError;
 use crate::collection::skiplist::level_generator::{DefaultLevelGenerator, GenerateLevel};
 use crate::collection::skiplist::skipnode::{Link, SkipNode};
 
+/// The inner comparator in skiplist
+type Comparator<T> = Box<dyn Fn(&T, &T) -> Ordering>;
+
 /// The skiplist provides a way of storing elements such that they are
 /// always sorted and at the same time provides efficient way to access, insert
 /// and remove nodes. Just like `LinkedList`, it also provides access to indices.
@@ -31,10 +34,10 @@ use crate::collection::skiplist::skipnode::{Link, SkipNode};
 /// **Failure to satisfy these properties can result in unexpected behavior at
 /// best, and at worst will cause a segfault, null deref, or some other bad
 /// behavior.**
-pub struct SkipList<T> {
+pub struct OrdSkipList<T> {
     length: usize,
     head: NonNull<SkipNode<T>>,
-    cmp: Box<dyn Fn(&T, &T) -> Ordering>,
+    cmp: Comparator<T>,
     level_generator: Box<dyn GenerateLevel>,
     _marker: PhantomData<Box<SkipNode<T>>>,
 }
@@ -42,7 +45,7 @@ pub struct SkipList<T> {
 /// The options to create a skip list
 pub struct Options<T: 'static> {
     // Custom comparator
-    pub cmp: Option<Box<dyn Fn(&T, &T) -> Ordering>>,
+    pub cmp: Option<Comparator<T>>,
     // Use default level generator, but set different max level(default is 16)
     pub level_bound: Option<usize>,
     // Use custom level generator
@@ -63,7 +66,7 @@ impl<T> Options<T> {
         }
     }
 
-    pub fn take_comparator(&mut self) -> Result<Box<dyn Fn(&T, &T) -> Ordering>, CollectionError> {
+    pub fn take_comparator(&mut self) -> Result<Comparator<T>, CollectionError> {
         match self.cmp.take() {
             Some(cmp) => Ok(Box::new(cmp)),
             None => Err(CollectionError::InvalidParameter(
@@ -73,7 +76,7 @@ impl<T> Options<T> {
     }
 }
 
-impl<T: Ord> SkipList<T> {
+impl<T: Ord> OrdSkipList<T> {
     pub fn new() -> Self {
         let g = DefaultLevelGenerator::default();
         Self {
@@ -93,7 +96,20 @@ impl<T: Ord> SkipList<T> {
     }
 }
 
-impl<T> SkipList<T> {
+impl<T: Ord> Default for OrdSkipList<T> {
+    fn default() -> Self {
+        let g = DefaultLevelGenerator::default();
+        Self {
+            length: 0,
+            cmp: Box::new(|x, y| x.cmp(y)),
+            head: NonNull::new(Box::into_raw(Box::new(SkipNode::head(g.level_bound())))).unwrap(),
+            level_generator: Box::new(g),
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl<T> OrdSkipList<T> {
     pub fn with_options(mut options: Options<T>) -> Result<Self, CollectionError> {
         let g = options.take_level_generator()?;
         Ok(Self {
@@ -113,21 +129,21 @@ impl<T> SkipList<T> {
             for i in (0..=cur.level).rev() {
                 while cur.next[i].is_some() {
                     let next_node = cur.next[i].unwrap().as_ref();
-                    if (self.cmp)(&next_node.val.as_ref().unwrap(), v) == Ordering::Less {
+                    if (self.cmp)(next_node.val.as_ref().unwrap(), v) == Ordering::Less {
                         cur = next_node;
                     } else {
                         break;
                     }
                 }
                 if cur.next[i].is_some()
-                    && (self.cmp)(&cur.next[i].unwrap().as_ref().val.as_ref().unwrap(), v)
+                    && (self.cmp)(cur.next[i].unwrap().as_ref().val.as_ref().unwrap(), v)
                         == Ordering::Equal
                 {
                     return true;
                 }
             }
         }
-        return false;
+        false
     }
 
     pub fn add(&mut self, data: T) -> Result<(), CollectionError> {
@@ -145,8 +161,8 @@ impl<T> SkipList<T> {
                 while cur.next[i].is_some() {
                     let next_node = cur.next[i].unwrap().as_mut();
                     if (self.cmp)(
-                        &next_node.val.as_ref().unwrap(),
-                        &new_node.as_ref().unwrap().as_ref().val.as_ref().unwrap(),
+                        next_node.val.as_ref().unwrap(),
+                        new_node.as_ref().unwrap().as_ref().val.as_ref().unwrap(),
                     ) == Ordering::Less
                     {
                         cur = next_node;
@@ -157,7 +173,7 @@ impl<T> SkipList<T> {
 
                 if level > i {
                     match cur.next[i] {
-                        Some(mut next) => {
+                        Some(next) => {
                             cur.next[i] = new_node;
                             new_node.as_mut().unwrap().as_mut().next[i] = Some(next);
                         }
@@ -187,7 +203,7 @@ impl<T> SkipList<T> {
             for i in (0..=max_level).rev() {
                 while cur.next[i].is_some() {
                     let next_node = cur.next[i].unwrap().as_mut();
-                    if (self.cmp)(&next_node.val.as_ref().unwrap(), &val) == Ordering::Less {
+                    if (self.cmp)(next_node.val.as_ref().unwrap(), val) == Ordering::Less {
                         cur = next_node;
                     } else {
                         break;
@@ -231,7 +247,7 @@ impl<T> SkipList<T> {
         ret_val
     }
 
-    pub fn range(&self, min: Bound<&T>, max: Bound<&T>) -> Iter<T> {
+    pub fn range(&self, _min: Bound<&T>, _max: Bound<&T>) -> Iter<T> {
         todo!()
     }
 
@@ -267,7 +283,7 @@ impl<T> SkipList<T> {
     }
 }
 
-impl<T: Debug> SkipList<T> {
+impl<T: Debug> OrdSkipList<T> {
     pub fn print(&self) {
         print!("[");
         self.iter().for_each(|i| {
@@ -313,13 +329,42 @@ impl<'a, T> Iterator for Iter<'a, T> {
 }
 
 pub struct IterMut<'a, T: 'a> {
-    head: Option<NonNull<SkipNode<T>>>,
+    head: Link<T>,
     len: usize,
     _marker: PhantomData<&'a mut SkipNode<T>>,
 }
 
+impl<'a, T> Iterator for IterMut<'a, T> {
+    type Item = &'a mut T;
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.len == 0 {
+            None
+        } else {
+            match self.head {
+                Some(node) => {
+                    self.len -= 1;
+
+                    unsafe {
+                        let node = &mut *node.as_ptr();
+                        self.head = node.next[0];
+                        node.val.as_mut()
+                    }
+                }
+                None => None,
+            }
+        }
+    }
+
+    #[inline]
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (self.len, Some(self.len))
+    }
+}
+
 pub struct IntoIter<T> {
-    list: SkipList<T>,
+    list: OrdSkipList<T>,
 }
 
 impl<T> Iterator for IntoIter<T> {
@@ -336,7 +381,7 @@ impl<T> Iterator for IntoIter<T> {
     }
 }
 
-impl<T> IntoIterator for SkipList<T> {
+impl<T> IntoIterator for OrdSkipList<T> {
     type Item = T;
     type IntoIter = IntoIter<T>;
 
@@ -348,7 +393,7 @@ impl<T> IntoIterator for SkipList<T> {
 #[cfg(test)]
 mod tests {
     use crate::collection::skiplist::level_generator::DefaultLevelGenerator;
-    use crate::collection::skiplist::{Options, SkipList};
+    use crate::collection::skiplist::{Options, OrdSkipList};
 
     #[test]
     fn compile() {
@@ -357,13 +402,13 @@ mod tests {
 
     #[test]
     fn new() {
-        let sl: SkipList<i32> = SkipList::new();
+        let sl: OrdSkipList<i32> = OrdSkipList::new();
         assert_eq!(sl.length, 0);
     }
 
     #[test]
     fn ord_with_options_cmp() {
-        let sl: SkipList<i32> = SkipList::with_options(Options {
+        let sl: OrdSkipList<i32> = OrdSkipList::with_options(Options {
             cmp: Some(Box::new(|x: &i32, y: &i32| y.cmp(x))),
             level_bound: None,
             level_generator: None,
@@ -374,7 +419,7 @@ mod tests {
 
     #[test]
     fn ord_with_options_level_bound() {
-        let sl: SkipList<i32> = SkipList::ord_with_options(Options {
+        let sl: OrdSkipList<i32> = OrdSkipList::ord_with_options(Options {
             cmp: None,
             level_bound: Some(1024),
             level_generator: None,
@@ -386,7 +431,7 @@ mod tests {
     #[test]
     fn ord_with_options_level_generator() {
         let g = DefaultLevelGenerator::new(4, 0.5).unwrap();
-        let sl: SkipList<i32> = SkipList::ord_with_options(Options {
+        let sl: OrdSkipList<i32> = OrdSkipList::ord_with_options(Options {
             cmp: None,
             level_bound: None,
             level_generator: Some(Box::new(g)),
@@ -402,18 +447,33 @@ mod tests {
             data: String,
         }
 
-        let sl: SkipList<Foo> = SkipList::with_options(Options {
+        let mut sl: OrdSkipList<Foo> = OrdSkipList::with_options(Options {
             cmp: Some(Box::new(|x: &Foo, y: &Foo| y.id.cmp(&x.id))),
             level_bound: None,
             level_generator: None,
         })
         .unwrap();
         assert_eq!(sl.length, 0);
+
+        sl.add(Foo {
+            id: 2,
+            data: "2".to_string(),
+        })
+        .unwrap();
+        sl.add(Foo {
+            id: 1,
+            data: "1".to_string(),
+        })
+        .unwrap();
+
+        let first = sl.iter().next().unwrap();
+        assert_eq!(first.id, 2);
+        assert_eq!(first.data, "2".to_string());
     }
 
     #[test]
     fn contains() {
-        let mut l: SkipList<i32> = SkipList::ord_with_options(Options {
+        let mut l: OrdSkipList<i32> = OrdSkipList::ord_with_options(Options {
             cmp: None,
             level_bound: Some(16),
             level_generator: None,
@@ -433,7 +493,7 @@ mod tests {
 
     #[test]
     fn remove() {
-        let mut l: SkipList<i32> = SkipList::new();
+        let mut l: OrdSkipList<i32> = OrdSkipList::new();
         l.add(12).unwrap();
         assert_eq!(l.length(), 1);
         assert!(l.contains(&12));
@@ -449,7 +509,7 @@ mod tests {
 
     #[test]
     fn iter() {
-        let mut l: SkipList<i32> = SkipList::new();
+        let mut l: OrdSkipList<i32> = OrdSkipList::new();
         for i in 0..100 {
             l.add(i).unwrap();
         }

@@ -43,8 +43,8 @@
 /// node has (as a result, the minimum height is 1).  The 'levels' refer to the
 /// layers in the above diagram, with level 0 being the bottom-most layer, level
 /// 1 being the one above level 0, etc.
-pub use self::skiplist::*;
+pub use self::ordskiplist::*;
 
 mod level_generator;
-pub mod skiplist;
+pub mod ordskiplist;
 mod skipnode;

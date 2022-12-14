@@ -63,8 +63,8 @@ mod tests {
         println!("d: {:?}", d);
         assert_eq!(a.bar, "test".to_string());
         assert_eq!(b.baz, 1);
-        assert_eq!(c.abc, true);
-        assert_eq!(d.abc, true);
+        assert!(c.abc);
+        assert!(d.abc);
         assert_eq!(d.bar, "multi".to_string());
     }
 }

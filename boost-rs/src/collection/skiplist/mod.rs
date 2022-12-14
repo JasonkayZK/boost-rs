@@ -45,6 +45,6 @@
 /// 1 being the one above level 0, etc.
 pub use self::ordskiplist::*;
 
-mod level_generator;
+pub mod level_generator;
 pub mod ordskiplist;
 mod skipnode;

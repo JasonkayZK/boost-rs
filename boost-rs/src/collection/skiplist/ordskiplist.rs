@@ -5,7 +5,7 @@
 use std::cmp::Ordering;
 use std::fmt::Debug;
 use std::marker::PhantomData;
-use std::ops::Bound;
+use std::mem;
 use std::ptr::NonNull;
 
 use crate::collection::error::CollectionError;
@@ -146,6 +146,7 @@ impl<T> OrdSkipList<T> {
         false
     }
 
+    /// Insert a new node by the given data
     pub fn add(&mut self, data: T) -> Result<(), CollectionError> {
         if self.contains(&data) {
             return Err(CollectionError::DuplicateKey);
@@ -190,6 +191,18 @@ impl<T> OrdSkipList<T> {
         Ok(())
     }
 
+    /// Peek the front value
+    pub fn peek_front(&self) -> Option<&T> {
+        unsafe {
+            let first_node = self.head.as_ref().next[0].as_ref();
+            match first_node {
+                Some(node) => node.as_ref().val.as_ref(),
+                None => None,
+            }
+        }
+    }
+
+    /// Remove the node that value equals to the given value
     pub fn remove(&mut self, val: &T) -> Option<T> {
         if !self.contains(val) {
             return None;
@@ -247,13 +260,20 @@ impl<T> OrdSkipList<T> {
         ret_val
     }
 
-    pub fn range(&self, _min: Bound<&T>, _max: Bound<&T>) -> Iter<T> {
-        todo!()
+    /// Remove the first element from the skiplist
+    pub fn pop_front(&mut self) -> Option<T> {
+        unsafe {
+            let first_node = self.head.as_ref().next[0].as_ref();
+            match first_node {
+                Some(node) => self.remove(node.as_ref().val.as_ref().unwrap()),
+                None => None,
+            }
+        }
     }
 
     /// Clears the skiplist, removing all values.
     pub fn clear(&mut self) {
-        todo!()
+        while self.pop_front().is_some() {}
     }
 
     /// Returns `true` if the skiplist contains no elements.
@@ -279,7 +299,34 @@ impl<T> OrdSkipList<T> {
     }
 
     pub fn iter_mut(&mut self) -> IterMut<T> {
-        todo!()
+        let node = unsafe { self.head.as_ref().next[0] };
+
+        IterMut {
+            head: node,
+            len: self.length,
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl<T> Drop for OrdSkipList<T> {
+    fn drop(&mut self) {
+        struct DropGuard<'a, T>(&'a mut OrdSkipList<T>);
+
+        impl<'a, T> Drop for DropGuard<'a, T> {
+            fn drop(&mut self) {
+                // Continue the same loop we do below. This only runs when a destructor has
+                // panicked. If another one panics this will abort.
+                while self.0.pop_front().is_some() {}
+            }
+        }
+
+        while let Some(node) = self.pop_front() {
+            let guard = DropGuard(self);
+            drop(node);
+            mem::forget(guard);
+        }
+        // println!("OrdSkipList dropped!")
     }
 }
 
@@ -372,7 +419,7 @@ impl<T> Iterator for IntoIter<T> {
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        todo!()
+        self.list.pop_front()
     }
 
     #[inline]
@@ -386,7 +433,17 @@ impl<T> IntoIterator for OrdSkipList<T> {
     type IntoIter = IntoIter<T>;
 
     fn into_iter(self) -> Self::IntoIter {
-        todo!()
+        IntoIter { list: self }
+    }
+}
+
+impl<T> Drop for IntoIter<T> {
+    fn drop(&mut self) {
+        // only need to ensure all our elements are read;
+        // buffer will clean itself up afterwards.
+        for _ in &mut *self {}
+
+        // println!("skiplist's intoIter has been dropped!")
     }
 }
 
@@ -394,11 +451,6 @@ impl<T> IntoIterator for OrdSkipList<T> {
 mod tests {
     use crate::collection::skiplist::level_generator::DefaultLevelGenerator;
     use crate::collection::skiplist::{Options, OrdSkipList};
-
-    #[test]
-    fn compile() {
-        println!("ok")
-    }
 
     #[test]
     fn new() {
@@ -520,5 +572,56 @@ mod tests {
             println!("i: {:?}", i);
             x += 1;
         });
+    }
+
+    #[test]
+    fn iter_mut() {
+        let mut l: OrdSkipList<i32> = OrdSkipList::new();
+        for i in 0..100 {
+            l.add(i).unwrap();
+        }
+        l.iter_mut().for_each(|node_val| *node_val += 1);
+        for x in 1..101 {
+            assert_eq!(x, l.pop_front().unwrap());
+        }
+    }
+
+    #[test]
+    fn clear() {
+        let mut l: OrdSkipList<i32> = OrdSkipList::new();
+        for i in 0..100 {
+            l.add(i).unwrap();
+        }
+        assert_eq!(l.length(), 100);
+
+        l.clear();
+        assert_eq!(l.length(), 0);
+        for i in 0..100 {
+            assert!(!l.contains(&i));
+        }
+    }
+
+    #[test]
+    fn into_iter() {
+        let mut l: OrdSkipList<i32> = OrdSkipList::new();
+        for i in 0..10 {
+            l.add(i).unwrap();
+        }
+        assert_eq!(l.length(), 10);
+
+        let mut l_to_string = l
+            .into_iter()
+            .map(|x| x.to_string())
+            .collect::<Vec<String>>();
+        println!(
+            "transform l into String vec, l_to_string: {:?}",
+            l_to_string
+        );
+
+        for i in (0..10).rev() {
+            assert_eq!(i.to_string(), l_to_string.pop().unwrap());
+        }
+        // Compiling err:
+        // l.print();
     }
 }

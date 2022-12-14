@@ -3,7 +3,7 @@
 //! Wikipedia: https://en.wikipedia.org/wiki/Skip_list
 
 use std::cmp::Ordering;
-use std::fmt::{Debug, Display};
+use std::fmt::Debug;
 use std::marker::PhantomData;
 use std::ops::Bound;
 use std::ptr::NonNull;
@@ -152,7 +152,7 @@ impl<T> SkipList<T> {
                 if level > i {
                     match cur.links[i] {
                         Some(mut next) => {
-                            next.as_mut().links[i] = new_node;
+                            cur.links[i] = new_node;
                             new_node.as_mut().unwrap().as_mut().links[i] = Some(next);
                         }
                         None => {

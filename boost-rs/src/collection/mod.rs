@@ -23,10 +23,14 @@
 //! Note that rust macros are flexible in which brackets you use for the invocation.
 //! You can use them as `hashmap!{}` or `hashmap![]` or `hashmap!()`.
 
+pub mod bst;
 pub mod btreemap;
 pub mod btreeset;
+pub mod error;
 pub mod hashmap;
 pub mod hashset;
+pub mod linkedlist;
+pub mod skiplist;
 
 /// Identity function. Used as the fallback for conversion.
 #[doc(hidden)]

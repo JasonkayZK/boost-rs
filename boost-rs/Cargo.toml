@@ -17,6 +17,7 @@ include = ["src/", "LICENSE", "README.md"]
 [dependencies]
 rand = "0.8.5"
 log = { version = "0.4", optional = true }
+thiserror = { version = "1.0.37", optional = true }
 boost-rs-macros = { version = "0.0.1", path = "../boost-rs-macros" }
 
 [features]
@@ -27,10 +28,17 @@ full = [
     "logger",
     "rand",
     "collection",
+    "sort",
+    "env",
 ]
 
 logger = [
     "log"
 ]
 rand = []
-collection = []
+collection = [
+    "thiserror",
+    "rand/small_rng"
+]
+sort = []
+env = []

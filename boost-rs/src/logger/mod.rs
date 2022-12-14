@@ -131,6 +131,5 @@ mod tests {
         logger::init(Some(Warn));
         trace!("cannot see trace");
         warn!("can see warning");
-        assert!(true)
     }
 }

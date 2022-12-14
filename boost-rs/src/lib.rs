@@ -14,3 +14,9 @@ pub mod types;
 
 #[cfg(feature = "collection")]
 pub mod collection;
+
+#[cfg(feature = "sort")]
+pub mod sort;
+
+#[cfg(feature = "env")]
+pub mod env;

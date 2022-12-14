@@ -9,6 +9,7 @@ edition = "2018"
 [dev-dependencies]
 boost-rs = { path = "../boost-rs", features = ["collection"] }
 boost-rs-macros = { path = "../boost-rs-macros" }
+rand = "0.8.5"
 
 [[example]]
 name = "macros-demo"

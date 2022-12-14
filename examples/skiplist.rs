@@ -1,31 +1,46 @@
-use boost_rs::collection::skiplist::{Options, OrdSkipList};
+use std::collections::LinkedList;
 
-fn add_test(l: &mut OrdSkipList<i32>, i: i32) {
-    l.add(i).unwrap();
+use rand::Rng;
+
+use boost_rs::collection::skiplist::OrdSkipList;
+use boost_rs_macros::elapsed;
+
+#[elapsed]
+fn skiplist_random_test(l: &OrdSkipList<i32>, search_val: &Vec<i32>) {
+    for i in search_val {
+        l.contains(i);
+    }
 }
 
-fn contains_test(l: &mut OrdSkipList<i32>, i: &i32) {
-    l.contains(i);
+#[elapsed]
+fn linkedlist_random_test(l: &LinkedList<i32>, search_val: &Vec<i32>) {
+    for i in search_val {
+        l.contains(i);
+    }
+}
+
+fn gen_random(cap: usize, search_cap: usize) -> Vec<i32> {
+    let mut v = vec![];
+    for _ in 0..search_cap {
+        let mut rng = rand::thread_rng();
+        v.push(rng.gen_range(0..cap) as i32);
+    }
+    v
 }
 
 fn main() {
-    let mut l = OrdSkipList::ord_with_options(Options {
-        cmp: None,
-        level_bound: Some(4),
-        level_generator: None,
-    })
-    .unwrap();
+    let mut sl = OrdSkipList::default();
+    let mut ll = LinkedList::new();
+    let cap = 100000;
+    let search_cap = 10000;
+    let search_val = gen_random(cap, search_cap);
 
-    for x in 0..10 {
-        add_test(&mut l, x);
-        contains_test(&mut l, &x);
+    for x in 0..cap {
+        let x = x as i32;
+        sl.insert(x).unwrap();
+        ll.push_back(x);
     }
-    l.print();
 
-    l.add(-1).unwrap();
-    l.print();
-
-    let res = l.remove(&3);
-    println!("res: {:?}", res);
-    l.print();
+    skiplist_random_test(&sl, &search_val);
+    linkedlist_random_test(&ll, &search_val);
 }

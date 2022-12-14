@@ -2,8 +2,8 @@ use proc_macro::TokenStream;
 use std::fmt::format;
 
 use quote::quote;
-use syn::ItemFn;
 use syn::parse_macro_input;
+use syn::ItemFn;
 
 pub(crate) fn elapsed(_attr: TokenStream, func: TokenStream) -> TokenStream {
     let func = parse_macro_input!(func as ItemFn);

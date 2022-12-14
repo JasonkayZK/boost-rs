@@ -2,11 +2,11 @@
 //!
 //! Wikipedia: https://en.wikipedia.org/wiki/Skip_list
 
-use std::{iter, mem};
 use std::cmp::Ordering;
 use std::fmt::Debug;
 use std::marker::PhantomData;
 use std::ptr::NonNull;
+use std::{iter, mem};
 
 use crate::collection::error::CollectionError;
 use crate::collection::skiplist::level_generator::{DefaultLevelGenerator, GenerateLevel};
@@ -137,7 +137,7 @@ impl<T> OrdSkipList<T> {
                 }
                 if cur.next[i].is_some()
                     && (self.cmp)(cur.next[i].unwrap().as_ref().val.as_ref().unwrap(), v)
-                    == Ordering::Equal
+                        == Ordering::Equal
                 {
                     return true;
                 }
@@ -228,21 +228,21 @@ impl<T> OrdSkipList<T> {
             let mut ret_val_ref = None;
             if cur.next[0].is_some()
                 && (self.cmp)(cur.next[0].unwrap().as_ref().val.as_ref().unwrap(), val)
-                == Ordering::Equal
+                    == Ordering::Equal
             {
                 ret_val_ref = cur.next[0];
                 for i in (0..=max_level).rev() {
                     if update[i].is_some()
                         && (*update[i].unwrap()).next[i].is_some()
                         && (self.cmp)(
-                        (*update[i].unwrap()).next[i]
-                            .unwrap()
-                            .as_mut()
-                            .val
-                            .as_ref()
-                            .unwrap(),
-                        val,
-                    ) == Ordering::Equal
+                            (*update[i].unwrap()).next[i]
+                                .unwrap()
+                                .as_mut()
+                                .val
+                                .as_ref()
+                                .unwrap(),
+                            val,
+                        ) == Ordering::Equal
                     {
                         (*update[i].unwrap()).next[i] =
                             (*update[i].unwrap()).next[i].unwrap().as_mut().next[i];
@@ -439,7 +439,7 @@ impl<T> IntoIterator for OrdSkipList<T> {
 
 impl<T> Extend<T> for OrdSkipList<T> {
     #[inline]
-    fn extend<I: IntoIterator<Item=T>>(&mut self, iterable: I) {
+    fn extend<I: IntoIterator<Item = T>>(&mut self, iterable: I) {
         let iterator = iterable.into_iter();
         for element in iterator {
             self.insert(element).unwrap();
@@ -448,13 +448,13 @@ impl<T> Extend<T> for OrdSkipList<T> {
 }
 
 impl<T> iter::FromIterator<T> for OrdSkipList<T>
-    where
-        T: Ord,
+where
+    T: Ord,
 {
     #[inline]
     fn from_iter<I>(iter: I) -> OrdSkipList<T>
-        where
-            I: IntoIterator<Item=T>,
+    where
+        I: IntoIterator<Item = T>,
     {
         let mut skiplist = OrdSkipList::default();
         skiplist.extend(iter);
@@ -474,8 +474,8 @@ impl<T> Drop for IntoIter<T> {
 
 #[cfg(test)]
 mod tests {
-    use crate::collection::skiplist::{Options, OrdSkipList};
     use crate::collection::skiplist::level_generator::DefaultLevelGenerator;
+    use crate::collection::skiplist::{Options, OrdSkipList};
 
     #[test]
     fn new() {
@@ -490,7 +490,7 @@ mod tests {
             level_bound: None,
             level_generator: None,
         })
-            .unwrap();
+        .unwrap();
         assert_eq!(sl.length, 0);
     }
 
@@ -501,7 +501,7 @@ mod tests {
             level_bound: Some(1024),
             level_generator: None,
         })
-            .unwrap();
+        .unwrap();
         assert_eq!(sl.length, 0);
     }
 
@@ -513,7 +513,7 @@ mod tests {
             level_bound: None,
             level_generator: Some(Box::new(g)),
         })
-            .unwrap();
+        .unwrap();
         assert_eq!(sl.length, 0);
     }
 
@@ -529,19 +529,19 @@ mod tests {
             level_bound: None,
             level_generator: None,
         })
-            .unwrap();
+        .unwrap();
         assert_eq!(sl.length, 0);
 
         sl.insert(Foo {
             id: 2,
             data: "2".to_string(),
         })
-            .unwrap();
+        .unwrap();
         sl.insert(Foo {
             id: 1,
             data: "1".to_string(),
         })
-            .unwrap();
+        .unwrap();
 
         let first = sl.iter().next().unwrap();
         assert_eq!(first.id, 2);
@@ -555,7 +555,7 @@ mod tests {
             level_bound: Some(16),
             level_generator: None,
         })
-            .unwrap();
+        .unwrap();
 
         let test_len = 10000;
         for i in 0..test_len {

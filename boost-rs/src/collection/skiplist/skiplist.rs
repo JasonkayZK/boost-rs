@@ -42,11 +42,11 @@ pub struct SkipList<T> {
 /// The options to create a skip list
 pub struct Options<T: 'static> {
     // Custom comparator
-    cmp: Option<Box<dyn Fn(&T, &T) -> Ordering>>,
+    pub cmp: Option<Box<dyn Fn(&T, &T) -> Ordering>>,
     // Use default level generator, but set different max level(default is 16)
-    level_bound: Option<usize>,
+    pub level_bound: Option<usize>,
     // Use custom level generator
-    level_generator: Option<Box<dyn GenerateLevel>>,
+    pub level_generator: Option<Box<dyn GenerateLevel>>,
 }
 
 impl<T> Options<T> {
@@ -191,12 +191,13 @@ impl<T> SkipList<T> {
             }
 
             let mut ret_val_ref = None;
-            if cur.next[0].is_some() && (self.cmp)(cur.next[0].unwrap().as_mut().val.as_mut().unwrap(), val) == Ordering::Equal {
+            if cur.next[0].is_some() && (self.cmp)(cur.next[0].unwrap().as_ref().val.as_ref().unwrap(), val) == Ordering::Equal {
                 ret_val_ref = cur.next[0];
                 for i in (0..=max_level).rev() {
-                    if update[i].is_some() && (*update[i].unwrap()).next[i].is_some() && (self.cmp)((*update[i].unwrap()).next[i].unwrap().as_mut().val.as_ref().unwrap(), val) == Ordering::Equal {
-                        let mut next = (*update[i].unwrap()).next[i];
-                        next = next.unwrap().as_mut().next[i];
+                    if update[i].is_some() &&
+                        (*update[i].unwrap()).next[i].is_some() &&
+                        (self.cmp)((*update[i].unwrap()).next[i].unwrap().as_mut().val.as_ref().unwrap(), val) == Ordering::Equal {
+                        (*update[i].unwrap()).next[i] = (*update[i].unwrap()).next[i].unwrap().as_mut().next[i];
                     }
                 }
             }
@@ -413,14 +414,16 @@ mod tests {
     fn remove() {
         let mut l: SkipList<i32> = SkipList::new();
         l.add(12).unwrap();
+        assert_eq!(l.length(), 1);
         assert!(l.contains(&12));
 
         l.remove(&12).unwrap();
+        assert_eq!(l.length(), 0);
         assert!(!l.contains(&12));
 
-        l.print();
-
         l.add(13).unwrap();
+        assert_eq!(l.length(), 1);
+        assert!(l.contains(&13));
     }
 
     #[test]

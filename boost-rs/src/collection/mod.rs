@@ -26,6 +26,7 @@
 pub mod bst;
 pub mod btreemap;
 pub mod btreeset;
+pub mod cache;
 pub mod error;
 pub mod hashmap;
 pub mod hashset;

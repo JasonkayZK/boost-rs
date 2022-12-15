@@ -1,22 +1,27 @@
-use crate::collection::error::CollectionError;
 use std::fmt::Debug;
 use std::marker::PhantomData;
 use std::mem;
 use std::ptr::NonNull;
 
-struct Node<T> {
+use crate::collection::error::CollectionError;
+
+pub(crate) struct Node<T> {
     val: T,
     next: Option<NonNull<Node<T>>>,
     prev: Option<NonNull<Node<T>>>,
 }
 
 impl<T> Node<T> {
-    fn new(val: T) -> Node<T> {
+    pub(crate) fn new(val: T) -> Node<T> {
         Node {
             val,
             prev: None,
             next: None,
         }
+    }
+
+    pub fn val(&self) -> &T {
+        &self.val
     }
 
     fn into_val(self) -> T {
@@ -54,17 +59,23 @@ impl<T> LinkedList<T> {
     /// Adds the given node to the front of the list.
     pub fn push_front(&mut self, val: T) {
         // Use box to help generate raw ptr
-        let mut node = Box::new(Node::new(val));
-        node.next = self.head;
-        node.prev = None;
-        let node = NonNull::new(Box::into_raw(node));
+        let node = Box::new(Node::new(val));
+        let node = NonNull::new(Box::into_raw(node)).unwrap();
+        self._push_front_raw(node);
+    }
 
-        match self.head {
-            None => self.tail = node,
-            Some(head) => unsafe { (*head.as_ptr()).prev = node },
+    pub(crate) fn _push_front_raw(&mut self, mut node: NonNull<Node<T>>) {
+        unsafe {
+            node.as_mut().next = self.head;
+            node.as_mut().prev = None;
         }
 
-        self.head = node;
+        match self.head {
+            None => self.tail = Some(node),
+            Some(head) => unsafe { (*head.as_ptr()).prev = Some(node) },
+        }
+
+        self.head = Some(node);
         self.length += 1;
     }
 
@@ -372,6 +383,14 @@ impl<T> LinkedList<T> {
         Ok(cur)
     }
 
+    /// Move the raw node pointer to the head of the list.
+    ///
+    /// Warning: this will not check that the provided node belongs to the current list.
+    pub(crate) fn move_raw_node_to_head(&mut self, node: NonNull<Node<T>>) {
+        self.unlink_node(node);
+        self._push_front_raw(node);
+    }
+
     /// Unlinks the specified node from the current list.
     ///
     /// Warning: this will not check that the provided node belongs to the current list.
@@ -396,6 +415,53 @@ impl<T> LinkedList<T> {
         };
 
         self.length -= 1;
+    }
+}
+
+impl<T: Eq> LinkedList<T> {
+    /// Remove the element that equals to the given val and returns the
+    ///
+    /// element with ownership.
+    ///
+    /// There maybe be more than one element, the remove order will NOT be guaranteed!
+    ///
+    /// This operation should compute in *O*(*n*) time.
+    pub fn remove_by_val(&mut self, val: &T) -> Option<T> {
+        if self.length() == 0 {
+            return None;
+        }
+
+        if self.peek_front()? == val {
+            return self.pop_front();
+        } else if self.peek_back()? == val {
+            return self.pop_back();
+        }
+
+        let cur = self._get_raw_by_val(val)?;
+        self.unlink_node(cur);
+        unsafe {
+            let unlinked_node = Box::from_raw(cur.as_ptr());
+            Some(unlinked_node.val)
+        }
+    }
+
+    #[inline]
+    pub(crate) fn _get_raw_by_val(&self, val: &T) -> Option<NonNull<Node<T>>> {
+        if self.length == 0 {
+            return None;
+        }
+        // Head to Tail
+        let mut cur = self.head;
+        while let Some(node) = cur {
+            unsafe {
+                if &node.as_ref().val == val {
+                    break;
+                } else {
+                    cur = node.as_ref().next;
+                }
+            }
+        }
+        cur
     }
 }
 
@@ -427,7 +493,7 @@ impl<T> Drop for LinkedList<T> {
             mem::forget(guard);
         }
 
-        println!("LinkedList dropped!")
+        // println!("LinkedList dropped!")
     }
 }
 
@@ -450,7 +516,7 @@ impl<T> Drop for IntoIter<T> {
         // buffer will clean itself up afterwards.
         for _ in &mut *self {}
 
-        println!("IntoIter has been dropped!")
+        // println!("IntoIter has been dropped!")
     }
 }
 
@@ -701,6 +767,41 @@ mod test {
 
         assert_eq!(list.get_by_idx(0).unwrap(), Some(&String::from("1")));
         assert_eq!(list.get_by_idx(1).unwrap(), Some(&String::from("3")));
+    }
+
+    #[test]
+    fn test_remove_val() {
+        let mut l = _new_list_string();
+        let len = l.length();
+
+        let removed = "abc".to_string();
+        assert_eq!(l.remove_by_val(&removed), Some(removed));
+        assert_eq!(len - 1, l.length());
+        assert!(!l.contains(&"abc".to_string()));
+        l.traverse();
+
+        let removed = "abc".to_string();
+        assert_eq!(l.remove_by_val(&removed), None);
+        assert_eq!(len - 1, l.length());
+        assert!(!l.contains(&"abc".to_string()));
+        l.traverse();
+    }
+
+    #[test]
+    fn test_move_raw_node_to_head() {
+        let mut l = LinkedList::new();
+        l.push_back("1".to_string());
+        l.push_back("2".to_string());
+        l.push_back("3".to_string());
+        l.traverse();
+        assert_eq!(l.length(), 3);
+        assert_eq!(l.peek_front().unwrap(), &"1".to_string());
+
+        let node = l._get_raw_by_val(&"2".to_string()).unwrap();
+        l.move_raw_node_to_head(node);
+        l.traverse();
+        assert_eq!(l.length(), 3);
+        assert_eq!(l.peek_front().unwrap(), &"2".to_string());
     }
 
     #[test]

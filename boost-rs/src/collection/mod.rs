@@ -23,6 +23,7 @@
 //! Note that rust macros are flexible in which brackets you use for the invocation.
 //! You can use them as `hashmap!{}` or `hashmap![]` or `hashmap!()`.
 
+pub mod bloom_filter;
 pub mod bst;
 pub mod btreemap;
 pub mod btreeset;

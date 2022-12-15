@@ -11,7 +11,7 @@ use bitvec::vec::BitVec;
 
 const DEFAULT_CAPACITY: usize = 10240;
 
-type HasherArray = Box<[Box<dyn BuildHasher<Hasher=DefaultHasher>>]>;
+type HasherArray = Box<[Box<dyn BuildHasher<Hasher = DefaultHasher>>]>;
 
 pub struct BloomFilter<T: ?Sized + Hash> {
     cap: usize,
@@ -22,10 +22,8 @@ pub struct BloomFilter<T: ?Sized + Hash> {
 
 impl<T: ?Sized + Hash> BloomFilter<T> {
     pub fn with_capacity(cap: usize) -> Self {
-        let v: Vec<Box<dyn BuildHasher<Hasher=DefaultHasher>>> = vec![
-            Box::new(RandomState::new()),
-            Box::new(RandomState::new()),
-        ];
+        let v: Vec<Box<dyn BuildHasher<Hasher = DefaultHasher>>> =
+            vec![Box::new(RandomState::new()), Box::new(RandomState::new())];
         let hash_arr = HasherArray::from(v);
         BloomFilter {
             cap,
@@ -35,7 +33,9 @@ impl<T: ?Sized + Hash> BloomFilter<T> {
         }
     }
 
-    pub fn with_hashers<const N: usize>(hashers: [Box<dyn BuildHasher<Hasher=DefaultHasher>>; N]) -> Self {
+    pub fn with_hashers<const N: usize>(
+        hashers: [Box<dyn BuildHasher<Hasher = DefaultHasher>>; N],
+    ) -> Self {
         let hash_arr = HasherArray::from(hashers);
         BloomFilter {
             cap: DEFAULT_CAPACITY,
@@ -45,7 +45,10 @@ impl<T: ?Sized + Hash> BloomFilter<T> {
         }
     }
 
-    pub fn with_cap_and_hashers<const N: usize>(cap: usize, hashers: [Box<dyn BuildHasher<Hasher=DefaultHasher>>; N]) -> Self {
+    pub fn with_cap_and_hashers<const N: usize>(
+        cap: usize,
+        hashers: [Box<dyn BuildHasher<Hasher = DefaultHasher>>; N],
+    ) -> Self {
         let hash_arr = HasherArray::from(hashers);
         BloomFilter {
             cap,
@@ -90,10 +93,8 @@ impl<T: ?Sized + Hash> BloomFilter<T> {
 
 impl<T: ?Sized + Hash> Default for BloomFilter<T> {
     fn default() -> Self {
-        let v: Vec<Box<dyn BuildHasher<Hasher=DefaultHasher>>> = vec![
-            Box::new(RandomState::new()),
-            Box::new(RandomState::new()),
-        ];
+        let v: Vec<Box<dyn BuildHasher<Hasher = DefaultHasher>>> =
+            vec![Box::new(RandomState::new()), Box::new(RandomState::new())];
         let hash_arr = HasherArray::from(v);
         BloomFilter {
             bit_array: BitVec::repeat(false, DEFAULT_CAPACITY),
@@ -114,14 +115,12 @@ mod tests {
     fn test_new() {
         let _f: BloomFilter<String> = BloomFilter::default();
         let _f: BloomFilter<String> = BloomFilter::with_capacity(4);
-        let _f: BloomFilter<String> = BloomFilter::with_hashers([
-            Box::new(RandomState::new()),
-            Box::new(RandomState::new()),
-        ]);
-        let _f: BloomFilter<String> = BloomFilter::with_cap_and_hashers(4, [
-            Box::new(RandomState::new()),
-            Box::new(RandomState::new()),
-        ]);
+        let _f: BloomFilter<String> =
+            BloomFilter::with_hashers([Box::new(RandomState::new()), Box::new(RandomState::new())]);
+        let _f: BloomFilter<String> = BloomFilter::with_cap_and_hashers(
+            4,
+            [Box::new(RandomState::new()), Box::new(RandomState::new())],
+        );
     }
 
     #[test]

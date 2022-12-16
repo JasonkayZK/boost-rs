@@ -21,9 +21,13 @@ pub struct BloomFilter<T: ?Sized + Hash> {
 }
 
 impl<T: ?Sized + Hash> BloomFilter<T> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
     pub fn with_capacity(cap: usize) -> Self {
         let v: Vec<Box<dyn BuildHasher<Hasher = DefaultHasher>>> =
-            vec![Box::new(RandomState::new()), Box::new(RandomState::new())];
+            vec![Box::new(RandomState::new())];
         let hash_arr = HasherArray::from(v);
         BloomFilter {
             cap,
@@ -94,7 +98,7 @@ impl<T: ?Sized + Hash> BloomFilter<T> {
 impl<T: ?Sized + Hash> Default for BloomFilter<T> {
     fn default() -> Self {
         let v: Vec<Box<dyn BuildHasher<Hasher = DefaultHasher>>> =
-            vec![Box::new(RandomState::new()), Box::new(RandomState::new())];
+            vec![Box::new(RandomState::new())];
         let hash_arr = HasherArray::from(v);
         BloomFilter {
             bit_array: BitVec::repeat(false, DEFAULT_CAPACITY),
@@ -131,7 +135,7 @@ mod tests {
         }
 
         for x in 5000..15000 {
-            if x < 1000 {
+            if x < 10000 {
                 assert!(f.might_contain(&x.to_string()));
             }
         }

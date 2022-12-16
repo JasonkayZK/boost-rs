@@ -135,7 +135,7 @@ mod tests {
         }
 
         for x in 5000..15000 {
-            if x < 1000 {
+            if x < 10000 {
                 assert!(f.might_contain(&x.to_string()));
             }
         }

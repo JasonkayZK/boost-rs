@@ -19,6 +19,8 @@ use crate::collection::error::CollectionError;
 pub trait GenerateLevel {
     /// The max number of levels that are assumed to exist for this level
     /// generator.
+    ///
+    /// MAX_LEVEL = level_bound()-1
     fn level_bound(&self) -> usize;
     /// Generate a random level for a new node in the range `[0, level_bound)`.
     ///
@@ -77,7 +79,7 @@ impl GenerateLevel for DefaultLevelGenerator {
     }
 
     fn random(&mut self) -> usize {
-        let mut level = 1;
+        let mut level = 0;
         let mut x = self.p;
         let f = 1.0 - self.rng.gen::<f64>();
         while x > f && level + 1 < self.level_bound {

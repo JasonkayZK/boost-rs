@@ -172,7 +172,7 @@ impl<T> OrdSkipList<T> {
                     }
                 }
 
-                if level > i {
+                if level >= i {
                     match cur.next[i] {
                         Some(next) => {
                             cur.next[i] = new_node;
@@ -594,7 +594,6 @@ mod tests {
         let mut x = 0;
         l.iter().for_each(|i| {
             assert_eq!(i, &x);
-            println!("i: {:?}", i);
             x += 1;
         });
     }

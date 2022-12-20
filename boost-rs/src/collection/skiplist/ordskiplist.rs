@@ -127,8 +127,8 @@ impl<T> OrdSkipList<T> {
             let mut cur = self.head.as_ref();
 
             for i in (0..=cur.level).rev() {
-                while cur.next[i].is_some() {
-                    let next_node = cur.next[i].unwrap().as_ref();
+                while let Some(next_node) = cur.next[i] {
+                    let next_node = next_node.as_ref();
                     if (self.cmp)(next_node.val.as_ref().unwrap(), v) == Ordering::Less {
                         cur = next_node;
                     } else {
@@ -159,8 +159,8 @@ impl<T> OrdSkipList<T> {
         unsafe {
             let mut cur = self.head.as_mut();
             for i in (0..=cur.level).rev() {
-                while cur.next[i].is_some() {
-                    let next_node = cur.next[i].unwrap().as_mut();
+                while let Some(mut next_node) = cur.next[i] {
+                    let next_node = next_node.as_mut();
                     if (self.cmp)(
                         next_node.val.as_ref().unwrap(),
                         new_node.as_ref().unwrap().as_ref().val.as_ref().unwrap(),
@@ -214,8 +214,8 @@ impl<T> OrdSkipList<T> {
         let ret_val;
         unsafe {
             for i in (0..=max_level).rev() {
-                while cur.next[i].is_some() {
-                    let next_node = cur.next[i].unwrap().as_mut();
+                while let Some(mut next_node) = cur.next[i] {
+                    let next_node = next_node.as_mut();
                     if (self.cmp)(next_node.val.as_ref().unwrap(), val) == Ordering::Less {
                         cur = next_node;
                     } else {
@@ -437,6 +437,16 @@ impl<T> IntoIterator for OrdSkipList<T> {
     }
 }
 
+impl<T> Drop for IntoIter<T> {
+    fn drop(&mut self) {
+        // only need to ensure all our elements are read;
+        // buffer will clean itself up afterwards.
+        for _ in &mut *self {}
+
+        // println!("skiplist's intoIter has been dropped!")
+    }
+}
+
 impl<T> Extend<T> for OrdSkipList<T> {
     #[inline]
     fn extend<I: IntoIterator<Item = T>>(&mut self, iterable: I) {
@@ -459,16 +469,6 @@ where
         let mut skiplist = OrdSkipList::default();
         skiplist.extend(iter);
         skiplist
-    }
-}
-
-impl<T> Drop for IntoIter<T> {
-    fn drop(&mut self) {
-        // only need to ensure all our elements are read;
-        // buffer will clean itself up afterwards.
-        for _ in &mut *self {}
-
-        // println!("skiplist's intoIter has been dropped!")
     }
 }
 

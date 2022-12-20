@@ -79,3 +79,4 @@ Blogs:
 -   [《通过一个例子学习Cargo-Features》](https://jasonkayzk.github.io/2022/11/28/通过一个例子学习Cargo-Features/)
 -   [《使用Rust实现布隆过滤器BloomFilter》](https://jasonkayzk.github.io/2022/12/16/使用Rust实现布隆过滤器BloomFilter/)
 -   [《使用Rust实现跳表Skiplist》](https://jasonkayzk.github.io/2022/12/16/使用Rust实现跳表Skiplist/)
+-   [《使用Rust实现跳表LruCache》](https://jasonkayzk.github.io/2022/12/20/使用Rust实现跳表LruCache/)

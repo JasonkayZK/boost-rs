@@ -22,3 +22,7 @@ path = "collections.rs"
 [[example]]
 name = "skiplist-demo"
 path = "skiplist.rs"
+
+[[example]]
+name = "lrucache-demo"
+path = "lrucache.rs"

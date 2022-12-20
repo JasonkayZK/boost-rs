@@ -8,14 +8,14 @@ use boost_rs_macros::elapsed;
 #[elapsed]
 fn skiplist_random_test(l: &OrdSkipList<i32>, search_val: &Vec<i32>) {
     for i in search_val {
-        l.contains(i);
+        assert!(l.contains(i));
     }
 }
 
 #[elapsed]
 fn linkedlist_random_test(l: &LinkedList<i32>, search_val: &Vec<i32>) {
     for i in search_val {
-        l.contains(i);
+        assert!(l.contains(i));
     }
 }
 

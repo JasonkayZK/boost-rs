@@ -79,7 +79,7 @@ impl GenerateLevel for DefaultLevelGenerator {
     }
 
     fn random(&mut self) -> usize {
-        let mut level = 1;
+        let mut level = 0;
         let mut x = self.p;
         let f = 1.0 - self.rng.gen::<f64>();
         while x > f && level + 1 < self.level_bound {

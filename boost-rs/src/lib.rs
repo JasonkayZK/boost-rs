@@ -1,10 +1,7 @@
-pub mod generic;
+pub mod macros;
 
 #[cfg(feature = "logger")]
 pub mod logger;
-
-#[cfg(feature = "macros")]
-pub mod macros;
 
 #[cfg(feature = "rand")]
 pub mod rand;

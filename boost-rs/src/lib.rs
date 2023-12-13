@@ -1,6 +1,3 @@
-#[cfg(feature = "bit")]
-pub mod bit;
-
 pub mod generic;
 
 #[cfg(feature = "logger")]

@@ -45,10 +45,10 @@ dependencies = [
 
 [[package]]
 name = "boost-rs"
-version = "0.0.5"
+version = "0.0.8"
 dependencies = [
  "bitvec",
- "boost-rs-macros",
+ "boost-rs-macros 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "criterion",
  "log",
  "rand",
@@ -60,6 +60,17 @@ name = "boost-rs-macros"
 version = "0.0.2"
 dependencies = [
  "boost-rs",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "boost-rs-macros"
+version = "0.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "57d4151c2b0cb464172ee672f72f440171f5c84f93fe75f2ff67605c37974c96"
+dependencies = [
  "proc-macro2",
  "quote",
  "syn",
@@ -221,7 +232,7 @@ name = "examples"
 version = "0.0.0"
 dependencies = [
  "boost-rs",
- "boost-rs-macros",
+ "boost-rs-macros 0.0.2",
  "rand",
 ]
 

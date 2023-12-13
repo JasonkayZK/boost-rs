@@ -45,7 +45,7 @@ dependencies = [
 
 [[package]]
 name = "boost-rs"
-version = "0.0.8"
+version = "0.0.9"
 dependencies = [
  "bitvec",
  "boost-rs-macros 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",

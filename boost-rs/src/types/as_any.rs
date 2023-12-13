@@ -1,23 +1,19 @@
-#![allow(clippy::inline_fn_without_body)]
-#![allow(unused_attributes)]
 //! This library provides some utility traits to make working with [`Any`] smoother.
 //! This crate contains similar functionality to the `downcast` crate, but simpler,
 use std::any::{Any, TypeId};
 
 /// This trait is an extension trait to [`Any`], and adds methods to retrieve a `&dyn Any`
 pub trait AsAny: Any {
-    #[inline(always)]
     fn as_any(&self) -> &dyn Any;
 
-    #[inline(always)]
     fn as_any_mut(&mut self) -> &mut dyn Any;
 
     /// Gets the type name of `self`
-    #[inline(always)]
     fn type_name(&self) -> TypeId;
 }
 
 impl<T: 'static> AsAny for T {
+    #[inline(always)]
     fn as_any(&self) -> &dyn Any {
         self
     }
@@ -40,7 +36,7 @@ pub trait Downcast: AsAny {
     /// Returns `true` if the boxed type is the same as `T`.
     ///
     /// Forward to the method defined on the type `Any`.
-    #[inline]
+    #[inline(always)]
     fn is<T>(&self) -> bool
     where
         T: AsAny,
@@ -49,7 +45,7 @@ pub trait Downcast: AsAny {
     }
 
     /// Forward to the method defined on the type `Any`.
-    #[inline]
+    #[inline(always)]
     fn downcast_ref<T>(&self) -> Option<&T>
     where
         T: AsAny,
@@ -58,7 +54,7 @@ pub trait Downcast: AsAny {
     }
 
     /// Forward to the method defined on the type `Any`.
-    #[inline]
+    #[inline(always)]
     fn downcast_mut<T>(&mut self) -> Option<&mut T>
     where
         T: AsAny,
@@ -84,6 +80,6 @@ mod tests {
         let x = Test;
         let y: &dyn Custom = &x;
         // With (extension) trait `Downcast` in scope.
-        assert!(y.downcast_ref::<Test>().is_some());
+        assert!((*y).downcast_ref::<Test>().is_some());
     }
 }

@@ -1,4 +1,6 @@
-trait Custom: boost_rs::types::as_any::AsAny {
+use boost_rs::types::as_any::{AsAny, Downcast};
+
+trait Custom: AsAny {
     fn hello(&self) -> String;
 }
 
@@ -14,6 +16,5 @@ impl Custom for Test {
 
 fn main() {
     let y: Box<dyn Custom> = Box::new(Test { age: 1 });
-    let test = y.as_any().downcast_ref::<Test>().unwrap();
-    println!("age: {}", test.age)
+    println!("age: {:?}", (*y).downcast_ref::<Test>().unwrap().age)
 }

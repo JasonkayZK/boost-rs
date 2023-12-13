@@ -1,6 +1,6 @@
 [package]
 name = "boost-rs"
-version = "0.0.8"
+version = "0.0.9"
 authors = ["JasonkayZK <jasonkayzk@gmail.com>"]
 license = "MIT"
 edition = "2018"

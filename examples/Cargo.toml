@@ -7,13 +7,13 @@ edition = "2018"
 # If you copy one of the examples into a new project, you should be using
 # [dependencies] instead, and delete the **path**.
 [dev-dependencies]
-boost-rs = { path = "../boost-rs", features = ["collection"] }
+boost-rs = { path = "../boost-rs", features = ["collection", "macros"] }
 boost-rs-macros = { path = "../boost-rs-macros" }
 rand = "0.8.5"
 
 [[example]]
-name = "macros-demo"
-path = "macros.rs"
+name = "macros-elapsed-demo"
+path = "macros/elapsed.rs"
 
 [[example]]
 name = "collection-demo"

@@ -191,7 +191,7 @@ impl<T: PartialOrd> BinarySearchTree<T> {
             if removed_node.parent.is_none() {
                 self.root = None;
             } else {
-                let mut parent = unsafe { &mut *removed_node.parent.unwrap().as_mut() };
+                let parent = unsafe { &mut *removed_node.parent.unwrap().as_mut() };
                 if parent.left == Some(node) {
                     parent.left = None;
                 } else {
@@ -215,7 +215,7 @@ impl<T: PartialOrd> BinarySearchTree<T> {
             } else {
                 // node is not root
                 unsafe {
-                    let mut parent = &mut *removed_node.parent.unwrap().as_mut();
+                    let parent = &mut *removed_node.parent.unwrap().as_mut();
                     if parent.left == Some(node) {
                         parent.left = Some(child);
                     } else {

@@ -1,6 +1,6 @@
 [package]
 name = "boost-rs"
-version = "0.0.5"
+version = "0.0.6"
 authors = ["JasonkayZK <jasonkayzk@gmail.com>"]
 license = "MIT"
 edition = "2018"
@@ -54,8 +54,5 @@ collection = [
 ]
 sort = []
 env = []
-bit = [
-    "types",
-]
 types = []
 macros = []

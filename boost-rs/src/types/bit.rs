@@ -44,7 +44,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::bit::opt::*;
+    use crate::types::bit::{add_one, neg, sub_one, swap};
 
     #[test]
     fn test_swap() {

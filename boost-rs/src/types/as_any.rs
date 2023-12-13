@@ -1,18 +1,23 @@
+#![allow(clippy::inline_fn_without_body)]
+#![allow(unused_attributes)]
 //! This library provides some utility traits to make working with [`Any`] smoother.
 //! This crate contains similar functionality to the `downcast` crate, but simpler,
-use std::any::Any;
+use std::any::{Any, TypeId};
 
 /// This trait is an extension trait to [`Any`], and adds methods to retrieve a `&dyn Any`
 pub trait AsAny: Any {
+    #[inline(always)]
     fn as_any(&self) -> &dyn Any;
+
+    #[inline(always)]
     fn as_any_mut(&mut self) -> &mut dyn Any;
 
     /// Gets the type name of `self`
-    fn type_name(&self) -> &'static str;
+    #[inline(always)]
+    fn type_name(&self) -> TypeId;
 }
 
-impl<T: Any> AsAny for T {
-    #[inline(always)]
+impl<T: 'static> AsAny for T {
     fn as_any(&self) -> &dyn Any {
         self
     }
@@ -23,8 +28,8 @@ impl<T: Any> AsAny for T {
     }
 
     #[inline(always)]
-    fn type_name(&self) -> &'static str {
-        core::any::type_name::<T>()
+    fn type_name(&self) -> TypeId {
+        TypeId::of::<T>()
     }
 }
 

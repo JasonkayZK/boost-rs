@@ -1,6 +1,6 @@
 [package]
 name = "boost-rs"
-version = "0.0.4"
+version = "0.0.5"
 authors = ["JasonkayZK <jasonkayzk@gmail.com>"]
 license = "MIT"
 edition = "2018"
@@ -39,6 +39,8 @@ full = [
     "collection",
     "sort",
     "env",
+    "types",
+    "macros",
 ]
 
 logger = [
@@ -52,3 +54,8 @@ collection = [
 ]
 sort = []
 env = []
+bit = [
+    "types",
+]
+types = []
+macros = []

@@ -16,7 +16,6 @@ A library for boosting your develop productivity with Rust.
 
 **boost-rs:**
 
--   **Bit**: multiple bit operations;
 -   **Collection**: 
     -   BloomFilter;
     -   Cache:
@@ -30,7 +29,7 @@ A library for boosting your develop productivity with Rust.
         -   `hashmap!`;
         -   `hashset!`;
 -   **Env**: environment related utilities, such as: `debug_mode()`;
--   **Generic**: generic related utilities, such as: `ArcMut<T> = Arc<Mutex<T>>`;
+-   
 -   **Logger**: a logger util to initialize and config a global logger for [`log`](https://crates.io/crates/log) crate;
 -   **Macros**: macro related utilities, such as: `empty_trait_impl` (implement multiple empty trait);
 -   **Rand**: random related utilities;
@@ -41,7 +40,12 @@ A library for boosting your develop productivity with Rust.
     -   Merge sort;
     -   Quick sort;
     -   Selection sort;
--   **Types**: rust type system related utilities;
+-   **Types**: rust type system related utilities:
+    -   `Bit`;
+    -   `AsAny`;
+    -   **Generic**: generic related utilities, such as: `ArcMutex<T> = Arc<Mutex<T>>`;
+    -   `With Trait`;
+    -   `Integer`;
 
 **macros:**
 
@@ -80,3 +84,4 @@ Blogs:
 -   [《使用Rust实现布隆过滤器BloomFilter》](https://jasonkayzk.github.io/2022/12/16/使用Rust实现布隆过滤器BloomFilter/)
 -   [《使用Rust实现跳表Skiplist》](https://jasonkayzk.github.io/2022/12/16/使用Rust实现跳表Skiplist/)
 -   [《使用Rust实现跳表LruCache》](https://jasonkayzk.github.io/2022/12/20/使用Rust实现跳表LruCache/)
+-   [《Rust中的向下转型》](https://jasonkayzk.github.io/2023/12/13/Rust中的向下转型/)
